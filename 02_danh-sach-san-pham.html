@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WEB207_TaiNguyen_thuvien</title>
+
+    <!-- Nhúng Bootstrap -->
+    <link rel="stylesheet" href="lib/bootstrap.css" />
+    <script src="lib/bootstrap.js"></script>
+
+    <!-- Nhúng Font Icon -->
+    <script src="lib/font-fontawesome-ae333ffef2.js"></script>
+
+    <!-- Nhúng AngularJS -->
+    <script src="lib/angular.js"></script>
+
+    <!-- Yêu cầu 1: Khởi tạo ng-app="myApp" 
+        và ng-controller="danhSachSanPhamCtrl" -->
+    <script>
+      // Khởi tạo ng-app
+      var app = angular.module("myApp", []);
+
+      // khởi tạo ng-controller
+      app.controller("danhSachSanPhamCtrl", function ($scope, $http) {
+        console.log("danhSachSanPhamCtrl xin chào.");
+
+        // 1. Khai báo các biến cần thiết
+        $scope.danhSachSanPham = [];
+
+        // 2. Dùng http để call api và lấy dữ liệu
+        // $http({
+        //   method: "GET",
+        //   url: "http://localhost:3000/san-pham",
+        // }).then(function (response) {
+        //   console.log("Log kết quả api trả về", response.data);
+        //   $scope.danhSachSanPham = response.data;
+        // });
+
+        $scope.getDataPro = function () {
+          $http.get("http://localhost:3000/san-pham").then(function (response) {
+            if (response.status == 200) {
+              $scope.danhSachSanPham = response.data;
+            }
+          });
+        };
+        $scope.getDataPro();
+
+        //Cách 2
+        $scope.getDataCategory = function () {
+          $http.get("http://localhost:3000/danh-muc").then(function (response) {
+            if (response.status == 200) {
+              $scope.danhSachDanhMuc = response.data;
+            }
+          });
+        };
+        $scope.getDataCategory();
+
+        // 3. Dùng http call api lấy danh sách danh mục
+        // $scope.danhSachDanhMuc = [];
+        // $http({
+        //   method: "GET",
+        //   url: "http://localhost:3000/danh-muc",
+        // }).then(function (response) {
+        //   $scope.danhSachDanhMuc = response.data;
+        //   console.log("$scope.danhSachDanhMuc", $scope.danhSachDanhMuc);
+        // });
+
+        // 4. Bắt sự kiện click danh mục và lấy dữ liệu sản phẩm mới
+        $scope.onClickFilterDanhMuc = function (id) {
+          $http
+            .get(`${"http://localhost:3000/san-pham"}?idDanhMuc=${id}`)
+            .then(function (response) {
+              $scope.danhSachSanPham = response.data;
+            });
+
+          console.log("Danh mục được click:", id);
+
+          // Call api lấy danh sách sản phẩm và truyền thêm idDanhMuc
+            // $http({
+            //   method: "GET",
+            //   url: "http://localhost:3000/san-pham",
+            //   params: {
+            //     idDanhMuc: id,
+            //   },
+            // }).then(function (response) {
+            //   console.log("Log kết quả api trả về", response.data);
+            //   $scope.danhSachSanPham = response.data;
+            // });
+        };
+
+        //
+      });
+    </script>
+  </head>
+
+  <body ng-app="myApp">
+    <div class="container" ng-controller="danhSachSanPhamCtrl">
+      <!-- Tiêu đề trang -->
+      <h3>Danh sách sản phẩm</h3>
+
+      <!-- Khu vực bộ lọc -->
+      <h6>Bộ lọc kiểu 1</h6>
+      <span>Lọc theo Danh Mục:</span>
+
+      <button class="btn btn-light" ng-click="onClickFilterDanhMuc(null)">
+        Tất cả
+      </button>
+
+      <button
+        class="btn btn-light"
+        ng-repeat="item in danhSachDanhMuc"
+        ng-click="onClickFilterDanhMuc(item.id)"
+      >
+        {{item.ten}}
+      </button>
+
+      <!-- Khu vực button tương tác -->
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-success">Tạo mới sản phẩm</button>
+      </div>
+
+      <!-- Khu vực bảng -->
+      <table class="table table-bordered table-hover table-striped mt-2">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Danh mục</th>
+            <!-- <th>Trạng thái</th> -->
+            <th>Tương tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr ng-repeat="item in danhSachSanPham">
+            <td>{{item.id}}</td>
+            <td>
+              <!-- Khai báo thẻ div kiểm soát khung của ảnh -->
+              <div
+                class="bg-light rounded border overflow-hidden d-flex justify-content-center align-items-center"
+                style="width: 80px; height: 80px"
+              >
+                <img ng-src="{{item.anh}}" class="mw-100 mh-100" />
+              </div>
+            </td>
+            <td>{{item.ten}}</td>
+            <td>{{item.tenDanhMuc}}</td>
+            <!-- <th>
+                        <span class="badge bg-success rounded-pill">Còn hàng</span>
+                    </th> -->
+            <th style="width: 1px" class="text-nowrap">
+              <button class="btn btn-primary btn-sm">Xem</button>
+              <button class="btn btn-warning btn-sm">Sửa</button>
+              <button class="btn btn-danger btn-sm">Xoá</button>
+            </th>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Khu vực phân trang -->
+      <!-- <div class="d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </div> -->
+    </div>
+  </body>
+</html>
