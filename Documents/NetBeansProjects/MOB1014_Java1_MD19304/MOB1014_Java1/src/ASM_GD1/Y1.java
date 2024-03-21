@@ -39,7 +39,7 @@ public class Y1 {
                 NhanVien nv = new NhanVien(maNV, tenNV, luong);
                 listNV.add(nv);
             }
-            System.out.print("Tiep tuc nhap(y/n)? ");
+            System.out.print("Tiep tuc nhap khong ban oi(y/n)? ");
         } while (!scanner.next().equalsIgnoreCase("n"));
     }// end Nhap
 }
